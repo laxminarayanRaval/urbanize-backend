@@ -43,6 +43,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     role = models.CharField('User Role', max_length=25,
                             choices=(('admin', 'Admin'), ('user', 'User'), ('prof', 'Professional')),
                             default='user')
+    full_name = models.CharField('Full Name', max_length=30, null=True)
     date_of_birth = models.DateTimeField('Date of Birth', null=True)
     gender = models.CharField(max_length=25, choices=(('male', 'Male'), ('female', 'Female'), ('other', 'Others')))
     profile_pic_url = models.URLField(
