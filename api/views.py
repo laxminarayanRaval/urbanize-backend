@@ -1,6 +1,17 @@
 from django.shortcuts import render
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+
+
+class TestView(APIView):
+    permission_classes = (IsAuthenticated,)  # for protected routes
+
+    def get(self, request):
+        return Response(data={"Test": "Done"}, status=status.HTTP_200_OK)
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

@@ -7,11 +7,13 @@ from .models import User
 
 class SignupSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True, validators=[UniqueValidator(queryset=User.objects.all())])
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password = serializers.CharField(write_only=True, min_length=8, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
+        # fields = ('full_name', 'email', 'password')
+        # extra_kwargs = {'password': {'write_only': True}}
         fields = '__all__'
 
     def validate(self, attrs):
@@ -23,8 +25,7 @@ class SignupSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create(
             email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
+            full_name=validated_data['full_name']
         )
         user.set_password(validated_data['password'])
 
