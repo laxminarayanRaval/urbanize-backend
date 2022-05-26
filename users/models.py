@@ -41,11 +41,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     email = models.EmailField(_('email address'), max_length=255, unique=True)
     role = models.CharField('User Role', max_length=25,
-                            choices=(('user', 'User'), ('prof', 'Professional'), ('admin', 'Admin'), ),
+                            choices=(('user', 'User'), ('prof', 'Professional'), ('admin', 'Admin'),),
                             default='user')
-    full_name = models.CharField('Full Name', max_length=30, null=False )
+    full_name = models.CharField('Full Name', max_length=30, null=False)
     date_of_birth = models.DateTimeField('Date of Birth', null=True)
-    gender = models.CharField(max_length=25, choices=(('male', 'Male'), ('female', 'Female'), ('other', 'Others')), default='not-specified')
+    gender = models.CharField(max_length=25, choices=(
+        ('non', 'not-specified'), ('male', 'Male'), ('female', 'Female'), ('other', 'Others')), default='non')
     profile_pic_url = models.URLField(
         default='https://res.cloudinary.com/urban-solutions/image/upload/v1652793543/icon-1633249_960_720_ae71g3.png')
     is_verified = models.BooleanField(default=False)
