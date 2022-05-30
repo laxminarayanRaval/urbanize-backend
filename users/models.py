@@ -68,7 +68,7 @@ class Service(models.Model):
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
     service_name = models.CharField('Service Category', max_length=50, null=False)
     description = models.CharField('Service Category Description', max_length=255, null=True)
-    img_url = models.URLField('Service Img URL', null=False)
+    img_url = models.URLField('Service Img URL', null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self): return str(self.service_name)
@@ -91,7 +91,7 @@ class ProfessionalUser(models.Model):
     # cities = models.CharField('Listing in Cities', max_length=255, null=False)
     cities = ArrayField(models.CharField(max_length=25), default=list)
     availability_hours = models.CharField('Service Timing', max_length=50, null=True)
-    address = models.CharField('Professional Office', max_length=255, null=True)
+    address = models.CharField('Office Address', max_length=255, null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self): return f'{self.user_id} provides services in ({self.cities})'

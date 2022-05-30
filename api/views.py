@@ -23,6 +23,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['full_name'] = user.full_name
         token['email'] = user.email
         token['role'] = user.role
+        token['pic_url'] = str(user.profile_pic_url)
         # token['last_login'] = user.last_login
         # ...
 
