@@ -100,7 +100,8 @@ class ProfessionalUser(models.Model):
 class ProfessionalUserService(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     prof_id = models.ForeignKey(ProfessionalUser, on_delete=models.CASCADE)
-    service_id = models.ForeignKey(SubService, on_delete=models.CASCADE)
+    service_id = models.ForeignKey(Service, on_delete=models.CASCADE)
+    subservice_ids = ArrayField(models.CharField(max_length=50, null=True))
     description = models.TextField(null=True)
     proof_img_url = models.URLField('Proof Image', null=False)
     charges = models.FloatField('Cost for Service', null=True)
