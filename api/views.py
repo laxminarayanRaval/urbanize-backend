@@ -4,8 +4,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
+from users.models import Service, SubService
+from users.serializers import ServiceListSerializer, SubserviceListSerializer
 
 
 class TestView(APIView):
@@ -35,8 +37,19 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-class ListServiceSubserviceView(ListAPIView):
+class ListServiceView(ListAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceListSerializer
+    # def get_queryset(self):
+    #     return Service.objects.all()
+
+
+class ListSubserviceView(ListAPIView):
     """
     A View to List all Services & Subservices.
     """
-    pass
+    serializer_class = SubserviceListSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        return SubService.objects.all()

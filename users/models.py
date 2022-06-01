@@ -66,7 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Service(models.Model):
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
-    service_name = models.CharField('Service Category', max_length=50, null=False)
+    service_name = models.CharField('Service Category', max_length=50, null=False, unique=True)
     description = models.CharField('Service Category Description', max_length=255, null=True)
     img_url = models.URLField('Service Img URL', null=True)
     is_active = models.BooleanField(default=True)
@@ -76,7 +76,7 @@ class Service(models.Model):
 
 class SubService(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
-    service_name = models.CharField('Sub-Service Category', max_length=30, null=False)
+    service_name = models.CharField('Sub-Service Category', max_length=30, null=False, unique=True)
     description = models.CharField('Sub-Service Category Description', max_length=255, null=True)
     service_id = models.ForeignKey(Service, on_delete=models.CASCADE)
     img_url = models.URLField('Service Img URL', null=True)

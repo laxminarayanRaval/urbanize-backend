@@ -1,8 +1,18 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
-
+from users.models import Service,SubService
 from .models import User
+
+class ServiceListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = '__all__'
+
+class SubserviceListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubService
+        fields = '__all__'
 
 
 class SignupSerializer(serializers.ModelSerializer):
