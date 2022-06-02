@@ -40,8 +40,6 @@ class MyTokenObtainPairView(TokenObtainPairView):
 class ListServiceView(ListAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceListSerializer
-    # def get_queryset(self):
-    #     return Service.objects.all()
 
 
 class ListSubserviceView(ListAPIView):
