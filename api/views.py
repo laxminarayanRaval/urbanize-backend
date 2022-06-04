@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from users.models import Service, SubService
 from users.serializers import ServiceListSerializer, SubserviceListSerializer, ChangeUserPasswordSerializer, \
-    ForgetPasswordSerializer
+    ForgetPasswordSerializer, ResetPasswordSerializer
 
 
 class TestView(APIView):
@@ -66,10 +66,22 @@ class ChangeUserPasswordView(APIView):
 
 
 class ForgetPasswordView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, format=None):
+        print("===================", request, request.data)
         serializer = ForgetPasswordSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             return Response({'message': 'Password Reset Link Send, please Check Your Email.'},
                             status=status.HTTP_200_OK)
         return Response({'error': 'Email Not Found, Please Check it or Signup instead.'},
                         status=status.HTTP_400_BAD_REQUEST)
+
+
+class ResetPasswordView(APIView):
+    def post(self, request, uid, token):
+        print(request.data, uid, token)
+        serializer = ResetPasswordSerializer(data=request.data, context={'uid': uid, 'token': token})
+        if serializer.is_valid():
+            return Response({"message": 'Password Reset Successful.'}, status=status.HTTP_200_OK)
+        return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
