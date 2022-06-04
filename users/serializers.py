@@ -1,8 +1,24 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from django.contrib.auth.password_validation import validate_password
 from users.models import Service, SubService
 from .models import User
+
+from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
 
 class ServiceListSerializer(serializers.ModelSerializer):
@@ -29,8 +45,11 @@ class SignupSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, attrs):
+        email = attrs.get('email')
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError({'error': "Email Already Registered."})
         if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({'password': "Password fields don't match"})
+            raise serializers.ValidationError({'error': "Password fields don't match"})
 
         return attrs
 
@@ -40,6 +59,46 @@ class SignupSerializer(serializers.ModelSerializer):
             full_name=validated_data['full_name']
         )
         user.set_password(validated_data['password'])
-
         user.save()
+
+        token = get_tokens_for_user(user)
+
         return user
+
+
+class ChangeUserPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(max_length=255, write_only=True)
+    password2 = serializers.CharField(max_length=255, write_only=True)
+
+    class Meta:
+        fields = ['password', 'password2']
+
+    def validate(self, attrs):
+        password = attrs.get('password')
+        password2 = attrs.get('password2')
+        user = self.context.get('user')
+        if password != password2:
+            raise serializers.ValidationError("Password and Confirm password doesn't match.")
+        user.set_password(password)
+        user.save()
+        return attrs  # super().validate(attrs)
+
+
+class ForgetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=255)
+
+    class Meta:
+        fields = ['email']
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
+            uid = urlsafe_base64_encode(force_bytes(user.id))
+            token = PasswordResetTokenGenerator().make_token(user)
+            link = f'http://localhost:3000/api/auth/reset_pass/{uid}/{token}'
+            print(f'Password Reset Link : {link}')
+            # Send Mail
+            return attrs
+        else:
+            raise serializers.ValidationError('Email Not Found as Registered.')
