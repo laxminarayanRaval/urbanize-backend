@@ -13,6 +13,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 # Email
 from api.utils import Util
+from django.template.loader import get_template
+from django.template import Context
 
 
 def get_tokens_for_user(user):
@@ -64,8 +66,15 @@ class SignupSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
 
-        # token = get_tokens_for_user(user)
-
+        # Send Mail
+        mail_template = 'emails/welcome_email.html'
+        mail_sub = f"Congratulations {user.full_name}, Your Account is created successfully."
+        mail_body = get_template(mail_template).render(
+            {'user': user.full_name})
+        data = {
+            'mail_sub': mail_sub, 'mail_body': mail_body, 'to_email': user.email
+        }
+        Util.send_mail(data)
         return user
 
 
@@ -95,7 +104,7 @@ class ForgetPasswordSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         email = attrs.get('email')
-        print("-------------------------------------",email)
+        print("-------------------------------------", email)
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email=email)
             uid = urlsafe_base64_encode(force_bytes(user.id))
@@ -103,8 +112,12 @@ class ForgetPasswordSerializer(serializers.Serializer):
             link = f'http://localhost:3000/api/auth/reset_pass/{uid}/{token}/'
             print(f'Password Reset Link : {link}')
             # Send Mail
+            mail_template = 'emails/send_verification_mail.html'
+            mail_sub = f"Attention {user.full_name}!, You Requested Password Reset Link."
+            mail_body = get_template(mail_template).render(
+                {'user': user.full_name, 'link': link})
             data = {
-                'reset_link': link, 'mail_to_name': user.full_name, 'mail_to_email': user.email
+                'mail_sub': mail_sub, 'mail_body': mail_body, 'to_email': user.email
             }
             Util.send_mail(data)
             return attrs
@@ -139,3 +152,18 @@ class ResetPasswordSerializer(serializers.Serializer):
         except DjangoUnicodeDecodeError as identifier:
             # PasswordResetTokenGenerator().check_token(user, token)
             raise serializers.ValidationError('Token is Not valid or Expired.')
+
+
+class DeactivateAccountSerializer(serializers.Serializer):
+    uid = serializers.CharField(max_length=255, required=True, write_only=True)
+    # password = serializers.CharField(max_length=255, required=True, write_only=True)
+
+    class Meta:
+        fields = ['uid']
+
+    def validate(self, attrs):
+        uid = attrs.get('password')
+        # password = attrs.get('password')
+
+        user = User.objects.get(pk=uid)
+        print(user.full_name)
