@@ -69,7 +69,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "corsheaders.middleware.CorsMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 ROOT_URLCONF = 'urbanize.urls'
 
@@ -203,7 +206,23 @@ EMAIL_USE_TLS = True
 # Reset Password Token time
 PASSWORD_RESET_TIMEOUT = 600  # 10 MINUTES
 
+import logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+        },
+    },
+}
 
 # Configure Django App for Heroku.
-# import django_on_heroku
-# django_on_heroku.settings(locals())
+import django_on_heroku
+django_on_heroku.settings(locals())
