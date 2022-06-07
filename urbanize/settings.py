@@ -14,8 +14,20 @@ from pathlib import Path
 from datetime import timedelta
 import environ
 
+# Setting up Cloudinary
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 env = environ.Env()
 environ.Env.read_env()
+
+# cloudinary configurations
+cloudinary.config(
+    cloud_name=env("CLOUDINARY_CLOUD_NAME"),
+    api_key=env("CLOUDINARY_API_KEY"),
+    api_secret=env("CLOUDINARY_API_SECRET")
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,12 +36,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-u7e^9iazj()z28+u69d8qb*lip!cbm^cy)!vdpy%7q%dm_tpj3'
+# SECRET_KEY = 'django-insecure-u7e^9iazj()z28+u69d8qb*lip!cbm^cy)!vdpy%7q%dm_tpj3'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["0.0.0.0", "urbanize-backend.herokuapp.com", "*"]
 
 # Application definition
 
@@ -43,7 +56,8 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
-    "corsheaders"
+    "corsheaders",
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "corsheaders.middleware.CorsMiddleware"
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = 'urbanize.urls'
@@ -132,7 +146,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
@@ -188,3 +202,8 @@ EMAIL_USE_TLS = True
 
 # Reset Password Token time
 PASSWORD_RESET_TIMEOUT = 600  # 10 MINUTES
+
+
+# Configure Django App for Heroku.
+# import django_on_heroku
+# django_on_heroku.settings(locals())
