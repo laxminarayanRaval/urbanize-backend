@@ -1,5 +1,4 @@
 asgiref==3.5.2
-backports.zoneinfo==0.2.1
 certifi==2021.10.8
 cloudinary==1.29.0
 Django==4.0.4
