@@ -47,8 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_of_birth = models.DateTimeField('Date of Birth', null=True)
     gender = models.CharField(max_length=25, choices=(
         ('non', 'not-specified'), ('male', 'Male'), ('female', 'Female'), ('other', 'Others')), default='non')
-    profile_pic_url = models.URLField(
-        default='https://res.cloudinary.com/urban-solutions/image/upload/v1652793543/icon-1633249_960_720_ae71g3.png')
+    profile_pic_url = models.URLField(null=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     mobile_no = models.CharField('User Contact No.', null=True, max_length=20)

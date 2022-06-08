@@ -79,16 +79,22 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 class ChangeUserPasswordSerializer(serializers.Serializer):
-    password = serializers.CharField(max_length=255, write_only=True)
-    password2 = serializers.CharField(max_length=255, write_only=True)
+    oldpassword = serializers.CharField(max_length=255, required=True, write_only=True)
+    password = serializers.CharField(max_length=255, required=True, write_only=True)
+    password2 = serializers.CharField(max_length=255, required=True, write_only=True)
 
     class Meta:
-        fields = ['password', 'password2']
+        fields = ['oldpassword', 'password', 'password2']
 
     def validate(self, attrs):
+        # print("-" * 10)
+        oldpassword = attrs.get('oldpassword')
         password = attrs.get('password')
         password2 = attrs.get('password2')
         user = self.context.get('user')
+        user = User.objects.get(email=user)
+        if not user.check_password(oldpassword):
+            raise serializers.ValidationError("Old Password isn't correct. Fail to Update.")
         if password != password2:
             raise serializers.ValidationError("Password and Confirm password doesn't match.")
         user.set_password(password)
@@ -103,8 +109,8 @@ class ForgetPasswordSerializer(serializers.Serializer):
         fields = ['email']
 
     def validate(self, attrs):
+        # print("-------------------------------------", attrs)
         email = attrs.get('email')
-        print("-------------------------------------", email)
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email=email)
             uid = urlsafe_base64_encode(force_bytes(user.id))
@@ -156,14 +162,20 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 class DeactivateAccountSerializer(serializers.Serializer):
     uid = serializers.CharField(max_length=255, required=True, write_only=True)
-    # password = serializers.CharField(max_length=255, required=True, write_only=True)
+    password = serializers.CharField(max_length=255, required=True, write_only=True)
 
     class Meta:
-        fields = ['uid']
+        fields = ['uid', 'password']
 
     def validate(self, attrs):
-        uid = attrs.get('password')
-        # password = attrs.get('password')
-
+        """
+        Validating if User Password is correct, make it's is_active field false.
+        """
+        uid = attrs.get('uid')
+        password = attrs.get('password')
         user = User.objects.get(pk=uid)
-        print(user.full_name)
+        if not user.check_password(password):
+            raise serializers.ValidationError("Given Password did not Matched with Actual one.")
+        user.is_active = False
+        user.save()
+        return attrs

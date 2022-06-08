@@ -13,25 +13,25 @@ class SignupAPIView(CreateAPIView):
 
 
 class ChangeUserPasswordView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ]
 
     def post(self, request, format=None):
         serializer = ChangeUserPasswordSerializer(data=request.data, context={'user': request.user})
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             return Response({'message': 'Password Changed Successfully'}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ForgetPasswordView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
 
     def post(self, request, format=None):
-        print("===================", request, request.data)
         serializer = ForgetPasswordSerializer(data=request.data)
+        # print("===================", request, request.data)
         if serializer.is_valid():
             return Response({'message': 'Password Reset Link Send, please Check Your Email.'},
                             status=status.HTTP_200_OK)
-        return Response({'error': 'Email Not Found, Please Check it or Signup instead.'},
+        return Response({'message': 'Email Not Found, Please Check it or Signup instead.'},
                         status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -45,8 +45,10 @@ class ResetPasswordView(APIView):
 
 
 class DeactivateAccountView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
     def post(self, request):
         serializer = DeactivateAccountSerializer(data=request.data)
         if serializer.is_valid():
             return Response({"message": "Your Account is Deactivated."}, status=status.HTTP_200_OK)
-        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
