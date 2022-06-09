@@ -26,6 +26,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Add custom claims
         token['full_name'] = user.full_name
         token['email'] = user.email
+        token['mobile'] = str(user.mobile_no)
+        token['gender'] = str(user.gender)
         token['role'] = user.role
         token['pic_url'] = str(user.profile_pic_url)
         token['verified'] = user.is_verified
