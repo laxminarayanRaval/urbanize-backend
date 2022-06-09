@@ -46,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField('Full Name', max_length=30, null=False)
     date_of_birth = models.DateTimeField('Date of Birth', null=True)
     gender = models.CharField(max_length=25, choices=(
-        ('non', 'not-specified'), ('male', 'Male'), ('female', 'Female'), ('other', 'Others')), default='non')
+        ('None', 'not-specified'), ('male', 'Male'), ('female', 'Female'), ('other', 'Others')), default='None')
     profile_pic_url = models.URLField(null=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

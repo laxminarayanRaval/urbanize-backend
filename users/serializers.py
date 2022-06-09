@@ -179,3 +179,30 @@ class DeactivateAccountSerializer(serializers.Serializer):
         user.is_active = False
         user.save()
         return attrs
+
+
+class UpdateContactDetailsSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=255, write_only=True)
+    mobile = serializers.CharField(max_length=255, write_only=True)
+    password = serializers.CharField(max_length=255, write_only=True)
+
+    class Meta:
+        fields = ['email', 'mobile']
+
+    def validate(self, attrs):
+        user = User.objects.get(email=self.context.get('user'))
+        email = attrs.get('email')
+        mobile = attrs.get('mobile')
+        password = attrs.get('password')
+
+        if not user.check_password(password):
+            raise serializers.ValidationError('Password is not correct, Fail to update.')
+        if not email == user.email and not user.mobile_no == mobile:
+            raise serializers.ValidationError('Nothing to update.')
+
+        user.email = email
+        user.mobile_no = mobile
+        user.save()
+
+        # print(user.full_name, user.email, user.mobile_no)
+        return attrs

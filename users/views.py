@@ -4,7 +4,7 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from .serializers import SignupSerializer, ChangeUserPasswordSerializer, ForgetPasswordSerializer, \
-    ResetPasswordSerializer, DeactivateAccountSerializer
+    ResetPasswordSerializer, DeactivateAccountSerializer, UpdateContactDetailsSerializer
 
 
 class SignupAPIView(CreateAPIView):
@@ -52,3 +52,13 @@ class DeactivateAccountView(APIView):
         if serializer.is_valid():
             return Response({"message": "Your Account is Deactivated."}, status=status.HTTP_200_OK)
         return Response({"message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateContactDetailsView(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def put(self, request):
+        serializer = UpdateContactDetailsSerializer(data=request.data, context={'user': request.user})
+        if serializer.is_valid():
+            return Response({'message': 'Contact Details Updated'}, status=status.HTTP_200_OK)
+        return Response({'message': str(serializer.errors)}, status=status.HTTP_400_BAD_REQUEST)
