@@ -89,7 +89,9 @@ class ProfessionalUser(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     # cities = models.CharField('Listing in Cities', max_length=255, null=False)
     cities = ArrayField(models.CharField(max_length=25), default=list)
-    availability_hours = models.CharField('Service Timing', max_length=50, null=True)
+    # availability_hours = models.CharField('Service Timing', max_length=50, null=True)
+    startsTime = models.TimeField(verbose_name="Availability Start Time", null=False)
+    endsTime = models.TimeField(verbose_name='Availability End Time', null=False)
     address = models.CharField('Office Address', max_length=255, null=True)
     is_active = models.BooleanField(default=True)
 
