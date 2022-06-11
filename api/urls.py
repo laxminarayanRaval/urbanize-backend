@@ -1,8 +1,8 @@
-from django.urls import path
+from django.urls import path, re_path
 from .views import MyTokenObtainPairView, TestView, ListServiceView, ListSubserviceView
 
 from users.views import SignupAPIView, ChangeUserPasswordView, ForgetPasswordView, ResetPasswordView, \
-    DeactivateAccountView, UpdateContactDetailsView
+    DeactivateAccountView, ContactDetailsView, ProfessionalUserView
 from rest_framework_simplejwt.views import (TokenRefreshView)
 
 urlpatterns = [
@@ -13,7 +13,9 @@ urlpatterns = [
     path('auth/deactivate_account', DeactivateAccountView.as_view(), name='deactivate_account'),
     path('request/forget_password', ForgetPasswordView.as_view(), name='forget_password'),
     path('request/reset_password/<uid>/<token>/', ResetPasswordView.as_view(), name='rest_password'),
-    path('request/update/contact_details/', UpdateContactDetailsView.as_view(), name="update_contact_details"),
+
+    path('user/contact_details/', ContactDetailsView.as_view(), name="contact_details"),
+    re_path(r'^user/professional/(?P<uid>\w+)$', ProfessionalUserView.as_view(), name="professional_user"),
 
     path('test/', TestView.as_view(), name='just_for_auth_testing'),
 

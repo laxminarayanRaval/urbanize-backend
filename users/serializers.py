@@ -6,7 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.password_validation import validate_password
 
 from users.models import Service, SubService
-from .models import User
+from .models import User, ProfessionalUser
 
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -206,3 +206,9 @@ class UpdateContactDetailsSerializer(serializers.Serializer):
 
         # print(user.full_name, user.email, user.mobile_no)
         return attrs
+
+
+class ProfessionalUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfessionalUser
+        fields = '__all__'

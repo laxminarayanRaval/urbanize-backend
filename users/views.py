@@ -1,10 +1,11 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from .serializers import SignupSerializer, ChangeUserPasswordSerializer, ForgetPasswordSerializer, \
-    ResetPasswordSerializer, DeactivateAccountSerializer, UpdateContactDetailsSerializer
+    ResetPasswordSerializer, DeactivateAccountSerializer, UpdateContactDetailsSerializer, ProfessionalUserSerializer
+from .models import User, ProfessionalUser
 
 
 class SignupAPIView(CreateAPIView):
@@ -54,7 +55,7 @@ class DeactivateAccountView(APIView):
         return Response({"message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UpdateContactDetailsView(APIView):
+class ContactDetailsView(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def put(self, request):
@@ -62,3 +63,21 @@ class UpdateContactDetailsView(APIView):
         if serializer.is_valid():
             return Response({'message': 'Contact Details Updated'}, status=status.HTTP_200_OK)
         return Response({'message': str(serializer.errors)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        users = User.objects.get(email=request.user)
+        return Response({'message': ''}, status=status.HTTP_200_OK)
+
+
+class ProfessionalUserView(APIView):
+    # permission_classes = [IsAuthenticatedOrReadOnly, ]
+    # serializer_class = ProfessionalUserSerializer
+
+    def get(self, request, uid=''):
+        return Response({'message': 'This user is not a Professional'})
+        if uid != '':
+            user = User.objects.get(pk=uid)
+        else:
+            user = User.objects.get(email=request.user)
+        if user.role == 'user':
+            return Response({'message': f'This user {user.full_name} ({user.email}) is not a Professional'})
