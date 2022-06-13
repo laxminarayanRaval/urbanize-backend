@@ -15,7 +15,8 @@ urlpatterns = [
     path('request/reset_password/<uid>/<token>/', ResetPasswordView.as_view(), name='rest_password'),
 
     path('user/contact_details/', ContactDetailsView.as_view(), name="contact_details"),
-    re_path(r'^user/professional/(?P<uid>\w+)$', ProfessionalUserView.as_view(), name="professional_user"),
+    path('user/professional/', ProfessionalUserView.as_view(), name="professional_user"),
+    path('user/professional/<uid>/', ProfessionalUserView.as_view(), name="professional_user_via_id"),
 
     path('test/', TestView.as_view(), name='just_for_auth_testing'),
 

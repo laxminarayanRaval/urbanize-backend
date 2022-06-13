@@ -62,16 +62,23 @@ class ContactDetailsView(APIView):
         serializer = UpdateContactDetailsSerializer(data=request.data, context={'user': request.user})
         if serializer.is_valid():
             return Response({'message': 'Contact Details Updated'}, status=status.HTTP_200_OK)
-        return Response({'message': str(serializer.errors)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
-        users = User.objects.get(email=request.user)
-        return Response({'message': ''}, status=status.HTTP_200_OK)
+        user = User.objects.get(email=request.user)
+        return Response({'message': {'email': user.email, 'mobile': user.mobile_no}}, status=status.HTTP_200_OK)
 
 
 class ProfessionalUserView(APIView):
     # permission_classes = [IsAuthenticatedOrReadOnly, ]
     # serializer_class = ProfessionalUserSerializer
+
+    def post(self, request):
+        serializer = ProfessionalUserSerializer(data=request.data, context={'user': request.user})
+        if serializer.is_valid():
+            return Response({'message': 'congratulations you\'ve completed on step for being a Professional'},
+                            status=status.HTTP_202_ACCEPTED)
+        return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, uid=''):
         return Response({'message': 'This user is not a Professional'})
@@ -79,5 +86,8 @@ class ProfessionalUserView(APIView):
             user = User.objects.get(pk=uid)
         else:
             user = User.objects.get(email=request.user)
-        if user.role == 'user':
-            return Response({'message': f'This user {user.full_name} ({user.email}) is not a Professional'})
+        if user:
+            if user.role == 'user':
+                return Response({'message': f'This user {user.full_name} ({user.email}) is not a Professional'})
+        else:
+            return Response({'message': 'User Not Found'}, status=status.HTTP_204_NO_CONTENT)

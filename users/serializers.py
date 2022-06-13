@@ -211,4 +211,13 @@ class UpdateContactDetailsSerializer(serializers.Serializer):
 class ProfessionalUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfessionalUser
-        fields = '__all__'
+        fields = ['user_id', 'cities', 'startsTime', 'endsTime', 'address']
+
+    def validate(self, attrs):
+        cities = attrs.get('cities')
+        startsTime = attrs.get('startsTime')
+        endsTime = attrs.get('endsTime')
+        address = attrs.get('address')
+        user = User.objects.get(email=self.context.get('user'))
+        user.role = 'prof'
+        pass
