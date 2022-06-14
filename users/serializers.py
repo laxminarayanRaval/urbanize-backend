@@ -190,6 +190,7 @@ class UpdateContactDetailsSerializer(serializers.Serializer):
         fields = ['email', 'mobile']
 
     def validate(self, attrs):
+        # self.super()
         user = User.objects.get(email=self.context.get('user'))
         email = attrs.get('email')
         mobile = attrs.get('mobile')
@@ -219,5 +220,10 @@ class ProfessionalUserSerializer(serializers.ModelSerializer):
         endsTime = attrs.get('endsTime')
         address = attrs.get('address')
         user = User.objects.get(email=self.context.get('user'))
-        user.role = 'prof'
+        # user.role = 'prof'
+        print("validating :", cities, startsTime, endsTime, address, user)
+        return attrs
+
+    def create(self, validated_data):
+        print("save --> create :", validated_data)
         pass

@@ -70,12 +70,13 @@ class ContactDetailsView(APIView):
 
 
 class ProfessionalUserView(APIView):
-    # permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     # serializer_class = ProfessionalUserSerializer
 
     def post(self, request):
         serializer = ProfessionalUserSerializer(data=request.data, context={'user': request.user})
         if serializer.is_valid():
+            serializer.save()
             return Response({'message': 'congratulations you\'ve completed on step for being a Professional'},
                             status=status.HTTP_202_ACCEPTED)
         return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
