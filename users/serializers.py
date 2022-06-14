@@ -210,20 +210,36 @@ class UpdateContactDetailsSerializer(serializers.Serializer):
 
 
 class ProfessionalUserSerializer(serializers.ModelSerializer):
+    cities = serializers.CharField(max_length=255, required=True)
+    startsTime = serializers.CharField(max_length=255, required=True)
+    endsTime = serializers.CharField(max_length=255, required=True)
+
     class Meta:
         model = ProfessionalUser
-        fields = ['user_id', 'cities', 'startsTime', 'endsTime', 'address']
+        fields = ['cities', 'startsTime', 'endsTime', 'address']
 
     def validate(self, attrs):
-        cities = attrs.get('cities')
+        # cities = attrs.get('cities')
         startsTime = attrs.get('startsTime')
         endsTime = attrs.get('endsTime')
-        address = attrs.get('address')
-        user = User.objects.get(email=self.context.get('user'))
-        # user.role = 'prof'
-        print("validating :", cities, startsTime, endsTime, address, user)
+        # address = attrs.get('address')
+        user = self.context.get('user')
+        if user.role == 'prof':
+            raise serializers.ValidationError("User is already a Professional")
+        if startsTime == endsTime:
+            raise serializers.ValidationError("You must select different end time than start time")
+
+        print("validating :", startsTime, endsTime)
         return attrs
 
     def create(self, validated_data):
-        print("save --> create :", validated_data)
-        pass
+        user = self.context.get('user')
+        cities = validated_data['cities'].split(',')
+        print("save  --> create :", validated_data, user.id, cities)
+        user.role = 'prof'
+        prof_user = ProfessionalUser.objects.create(user_id=user, cities=cities,
+                                                    startsTime=validated_data['startsTime'],
+                                                    endsTime=validated_data['endsTime'],
+                                                    address=validated_data['address'])
+        user.save()
+        return {}  # prof_user

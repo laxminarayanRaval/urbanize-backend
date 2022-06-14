@@ -82,11 +82,11 @@ class ProfessionalUserView(APIView):
         return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, uid=''):
-        return Response({'message': 'This user is not a Professional'})
         if uid != '':
             user = User.objects.get(pk=uid)
         else:
             user = User.objects.get(email=request.user)
+            if user.role != 'prof': return Response({'message': 'This user is not a Professional'})
         if user:
             if user.role == 'user':
                 return Response({'message': f'This user {user.full_name} ({user.email}) is not a Professional'})
