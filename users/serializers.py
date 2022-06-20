@@ -6,7 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.password_validation import validate_password
 
 from users.models import Service, SubService
-from .models import User, ProfessionalUser
+from .models import User, ProfessionalUser, ContactUsQuery, ProfessionalUserService
 
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -35,6 +35,18 @@ class ServiceListSerializer(serializers.ModelSerializer):
 class SubserviceListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubService
+        fields = '__all__'
+
+
+class ContactusSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = ContactUsQuery
+        fields = '__all__'
+
+
+class ProfessionalUserServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProfessionalUserService
         fields = '__all__'
 
 
@@ -181,7 +193,15 @@ class DeactivateAccountSerializer(serializers.Serializer):
         return attrs
 
 
-class UpdateContactDetailsSerializer(serializers.Serializer):
+class UserDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        # fields = '__all__'
+        fields = ['id', 'email', 'role', 'full_name', 'date_of_birth', 'gender', 'profile_pic_url', 'is_verified',
+                  'is_active', 'mobile_no']
+
+
+class UpdateUserContactDetailsSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255, write_only=True)
     mobile = serializers.CharField(max_length=255, write_only=True)
     password = serializers.CharField(max_length=255, write_only=True)
@@ -237,9 +257,11 @@ class ProfessionalUserSerializer(serializers.ModelSerializer):
         cities = validated_data['cities'].split(',')
         print("save  --> create :", validated_data, user.id, cities)
         user.role = 'prof'
-        prof_user = ProfessionalUser.objects.create(user_id=user, cities=cities,
-                                                    startsTime=validated_data['startsTime'],
-                                                    endsTime=validated_data['endsTime'],
-                                                    address=validated_data['address'])
+        add_pu = {"user_id": user, **validated_data, "cities": cities}
+        # "startsTime": validated_data['startsTime'],
+        # "endsTime": validated_data['endsTime'],
+        # "address": validated_data['address']}
+        print(add_pu)
+        prof_user = ProfessionalUser.objects.create(**add_pu)
         user.save()
-        return {}  # prof_user
+        return prof_user

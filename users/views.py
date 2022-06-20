@@ -1,16 +1,69 @@
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser, BasePermission
 from rest_framework.response import Response
-from .serializers import SignupSerializer, ChangeUserPasswordSerializer, ForgetPasswordSerializer, \
-    ResetPasswordSerializer, DeactivateAccountSerializer, UpdateContactDetailsSerializer, ProfessionalUserSerializer
-from .models import User, ProfessionalUser
+from .serializers import SignupSerializer, ContactusSerializers, ChangeUserPasswordSerializer, ForgetPasswordSerializer, \
+    ResetPasswordSerializer, DeactivateAccountSerializer, UpdateUserContactDetailsSerializer, \
+    ProfessionalUserSerializer, UserDetailsSerializer, ProfessionalUserServiceSerializer
+from .models import User, ProfessionalUser, ContactUsQuery
 
 
 class SignupAPIView(CreateAPIView):
+    """
+    User Signup process handling View.
+    """
+
     permission_classes = (AllowAny,)
     serializer_class = SignupSerializer
+
+
+class WriteOnly(BasePermission):
+    """
+    A WriteOnly Custom Permission for POST method call check.
+    """
+
+    def has_permission(self, request, view):
+        return request.method == 'POST'
+
+
+class ContactusView(APIView):
+    """
+    A View for Handling strange users contact queries. Only Admin can Read, Update or Delete.
+    """
+    permission_classes = [IsAdminUser | WriteOnly, ]
+
+    def get_object(self, pk):
+        """to get parameter specific data"""
+        try:
+            return ContactUsQuery.objects.get(pk=pk)
+        except ContactUsQuery.DoesNotExist:
+            raise ValueError('Data Not Found')
+
+    def get(self, request, pk=None, format=None):
+        """only Admin can Read"""
+        if pk:
+            qs = self.get_object(pk)
+            serializer = ContactusSerializers(qs)
+        else:
+            qs = ContactUsQuery.objects.all()
+            serializer = ContactusSerializers(qs, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        """Random Person can make contact query."""
+        serializer = ContactusSerializers(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+
+    # def put(self, request):
+    #     """Admin will mark query solved"""
+    #     serializer = ContactusSerializers(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #
+    #     return Response()
 
 
 class ChangeUserPasswordView(APIView):
@@ -55,11 +108,25 @@ class DeactivateAccountView(APIView):
         return Response({"message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UserDetailsView(ListAPIView):
+    permission_classes = [AllowAny, ]
+
+    def get(self, request, uid=None):
+        if not uid:
+            user = request.user
+        else:
+            user = User.objects.get(pk=uid)
+        if user:
+            serializer = UserDetailsSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'message': 'Please Provide User ID.'})
+
+
 class ContactDetailsView(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def put(self, request):
-        serializer = UpdateContactDetailsSerializer(data=request.data, context={'user': request.user})
+        serializer = UpdateUserContactDetailsSerializer(data=request.data, context={'user': request.user})
         if serializer.is_valid():
             return Response({'message': 'Contact Details Updated'}, status=status.HTTP_200_OK)
         return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -71,6 +138,7 @@ class ContactDetailsView(APIView):
 
 class ProfessionalUserView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly, ]
+
     # serializer_class = ProfessionalUserSerializer
 
     def post(self, request):
@@ -86,9 +154,15 @@ class ProfessionalUserView(APIView):
             user = User.objects.get(pk=uid)
         else:
             user = User.objects.get(email=request.user)
-            if user.role != 'prof': return Response({'message': 'This user is not a Professional'})
         if user:
+            # if user.role != 'prof': return Response({'message': 'This user is not a Professional'})
             if user.role == 'user':
                 return Response({'message': f'This user {user.full_name} ({user.email}) is not a Professional'})
+            else:
+                return Response({'message': f'{user.full_name} ({user.email}) is {user.role}'})
         else:
             return Response({'message': 'User Not Found'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class ProfessionalUserServiceView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly, ]

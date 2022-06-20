@@ -131,3 +131,18 @@ class ProfessionalUserServiceImages(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     prof_serv_id = models.ForeignKey(ProfessionalUserService, on_delete=models.CASCADE)
     img_urls = models.URLField('Uploaded Images URL', null=False)
+
+
+class ContactUsQuery(models.Model):
+    id = models.UUIDField(default=uuid.uuid4(), primary_key=True, editable=False)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    email = models.EmailField(_("Email Address"), max_length=255)
+    mobile = models.CharField(_("Phone Number"), max_length=255)
+    title = models.CharField(_("Title"), max_length=255)
+    desc = models.CharField(_("Dec. Message"), max_length=255)
+    is_active = models.BooleanField(default=True)
+    is_solved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.title} : {self.first_name}'

@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, ProfessionalUser, Service, SubService, ProfessionalUserService
+from .models import ContactUsQuery, User, ProfessionalUser, Service, SubService, ProfessionalUserService
 
 # Register your models here.
 # admin.site.unregister(User)
 
+admin.site.register(ContactUsQuery)
 admin.site.register(User)
 admin.site.register(ProfessionalUser)
 admin.site.register(Service)

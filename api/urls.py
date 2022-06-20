@@ -1,8 +1,8 @@
 from django.urls import path, re_path
 from .views import MyTokenObtainPairView, TestView, ListServiceView, ListSubserviceView
 
-from users.views import SignupAPIView, ChangeUserPasswordView, ForgetPasswordView, ResetPasswordView, \
-    DeactivateAccountView, ContactDetailsView, ProfessionalUserView
+from users.views import SignupAPIView, ContactusView, ChangeUserPasswordView, ForgetPasswordView, ResetPasswordView, \
+    DeactivateAccountView, UserDetailsView, ContactDetailsView, ProfessionalUserView
 from rest_framework_simplejwt.views import (TokenRefreshView)
 
 urlpatterns = [
@@ -14,9 +14,16 @@ urlpatterns = [
     path('request/forget_password', ForgetPasswordView.as_view(), name='forget_password'),
     path('request/reset_password/<uid>/<token>/', ResetPasswordView.as_view(), name='rest_password'),
 
+    path('user/details/', UserDetailsView.as_view(), name="current_user_details"),
+    path('user/details/<uid>/', UserDetailsView.as_view(), name="id_user_details"),
     path('user/contact_details/', ContactDetailsView.as_view(), name="contact_details"),
+
     path('user/professional/', ProfessionalUserView.as_view(), name="professional_user"),
     path('user/professional/<uid>/', ProfessionalUserView.as_view(), name="professional_user_via_id"),
+    path('user/professional/list_services/', ProfessionalUserView.as_view(), name="professional_user_via_id"),
+
+    path('contact_us/', ContactusView.as_view(), name='contact_us'),
+    path('contact_us/<pk>/', ContactusView.as_view(), name='contact_us_id'),
 
     path('test/', TestView.as_view(), name='just_for_auth_testing'),
 

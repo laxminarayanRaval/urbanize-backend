@@ -12,7 +12,7 @@ from users.serializers import ServiceListSerializer, SubserviceListSerializer
 
 
 class TestView(APIView):
-    permission_classes = (IsAuthenticated,)  # for protected routes
+    permission_classes = [IsAuthenticated,]  # for protected routes
 
     def get(self, request):
         return Response(data={"Test": "Done"}, status=status.HTTP_200_OK)
@@ -24,13 +24,13 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         # Add custom claims
-        token['full_name'] = user.full_name
+        # token['full_name'] = user.full_name
         # token['email'] = user.email
         # token['mobile'] = str(user.mobile_no)
-        token['gender'] = str(user.gender)
-        token['role'] = user.role
-        token['pic_url'] = str(user.profile_pic_url)
-        token['verified'] = user.is_verified
+        # token['gender'] = str(user.gender)
+        # token['role'] = user.role
+        # token['pic_url'] = str(user.profile_pic_url)
+        # token['verified'] = user.is_verified
         # token['last_login'] = user.last_login
         # ...
 
@@ -51,7 +51,7 @@ class ListSubserviceView(ListAPIView):
     A View to List all Services & Subservices.
     """
     serializer_class = SubserviceListSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = [AllowAny,]
 
     def get_queryset(self):
         return SubService.objects.all()
