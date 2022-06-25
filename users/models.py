@@ -102,14 +102,12 @@ class ProfessionalUserService(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     prof_id = models.ForeignKey(ProfessionalUser, on_delete=models.CASCADE)
     service_id = models.ForeignKey(Service, on_delete=models.CASCADE)
-    subservice_ids = ArrayField(models.CharField(max_length=50, null=True))
+    subservice_ids = ArrayField(models.CharField(max_length=255, null=True))
     description = models.TextField(null=True)
     proof_img_url = models.URLField('Proof Image', null=False)
     charges = models.FloatField('Cost for Service', null=True)
-    estimate_time = models.TimeField('Time to Complete', null=True)
-    payment_modes = ArrayField(models.CharField(max_length=30, default='cash', choices=(
-        ('cash', 'CASH'), ('upi', 'UPI'), ('card', 'Card'), ('cheque', 'Cheque')
-    )))
+    estimate_time = models.CharField('Time to Complete', max_length=255, null=True)
+    payment_modes = ArrayField(models.CharField(max_length=30, default='cash'))
     is_active = models.BooleanField(default=True)
 
     def __str__(self): return f'{self.prof_id} provides service {self.service_id},\

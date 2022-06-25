@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from .serializers import SignupSerializer, ContactusSerializers, ChangeUserPasswordSerializer, ForgetPasswordSerializer, \
     ResetPasswordSerializer, DeactivateAccountSerializer, UpdateUserContactDetailsSerializer, \
     ProfessionalUserSerializer, UserDetailsSerializer, ProfessionalUserServiceSerializer
-from .models import User, ProfessionalUser, ContactUsQuery
+from .models import User, ContactUsQuery, ProfessionalUser, ProfessionalUserService
 
 
 class SignupAPIView(CreateAPIView):
@@ -20,7 +20,7 @@ class SignupAPIView(CreateAPIView):
 
 class WriteOnly(BasePermission):
     """
-    A WriteOnly Custom Permission for POST method call check.
+    A WriteOnly Custom Permission for only POST method call check.
     """
 
     def has_permission(self, request, view):
@@ -137,6 +137,9 @@ class ContactDetailsView(APIView):
 
 
 class ProfessionalUserView(APIView):
+    """
+    User to Professional, role change
+    """
     permission_classes = [IsAuthenticatedOrReadOnly, ]
 
     # serializer_class = ProfessionalUserSerializer
@@ -149,8 +152,8 @@ class ProfessionalUserView(APIView):
                             status=status.HTTP_202_ACCEPTED)
         return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, uid=''):
-        if uid != '':
+    def get(self, request, uid=None):
+        if uid:
             user = User.objects.get(pk=uid)
         else:
             user = User.objects.get(email=request.user)
@@ -165,4 +168,20 @@ class ProfessionalUserView(APIView):
 
 
 class ProfessionalUserServiceView(APIView):
+    """
+    Professional users services listing
+    """
     permission_classes = [IsAuthenticatedOrReadOnly, ]
+
+    def get(self, request):
+        """A public API for services_listings"""
+        pu_services_list = ProfessionalUserService.objects.all()
+        serializer = ProfessionalUserServiceSerializer(pu_services_list, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = ProfessionalUserServiceSerializer(data=request.data, context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)

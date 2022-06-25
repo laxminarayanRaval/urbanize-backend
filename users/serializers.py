@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -6,7 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.password_validation import validate_password
 
 from users.models import Service, SubService
-from .models import User, ProfessionalUser, ContactUsQuery, ProfessionalUserService
+from .models import User, ProfessionalUser, ContactUsQuery, ProfessionalUserService, Service, SubService
 
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -26,7 +28,7 @@ def get_tokens_for_user(user):
     }
 
 
-class ServiceListSerializer(serializers.ModelSerializer):
+class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
         fields = '__all__'
@@ -41,12 +43,6 @@ class SubserviceListSerializer(serializers.ModelSerializer):
 class ContactusSerializers(serializers.ModelSerializer):
     class Meta:
         model = ContactUsQuery
-        fields = '__all__'
-
-
-class ProfessionalUserServiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProfessionalUserService
         fields = '__all__'
 
 
@@ -193,14 +189,6 @@ class DeactivateAccountSerializer(serializers.Serializer):
         return attrs
 
 
-class UserDetailsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        # fields = '__all__'
-        fields = ['id', 'email', 'role', 'full_name', 'date_of_birth', 'gender', 'profile_pic_url', 'is_verified',
-                  'is_active', 'mobile_no']
-
-
 class UpdateUserContactDetailsSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255, write_only=True)
     mobile = serializers.CharField(max_length=255, write_only=True)
@@ -230,12 +218,13 @@ class UpdateUserContactDetailsSerializer(serializers.Serializer):
 
 
 class ProfessionalUserSerializer(serializers.ModelSerializer):
-    cities = serializers.CharField(max_length=255, required=True)
+    # cities = serializers.CharField(max_length=255, required=True)
     startsTime = serializers.CharField(max_length=255, required=True)
     endsTime = serializers.CharField(max_length=255, required=True)
 
     class Meta:
         model = ProfessionalUser
+        # fields = '__all__'
         fields = ['cities', 'startsTime', 'endsTime', 'address']
 
     def validate(self, attrs):
@@ -254,14 +243,59 @@ class ProfessionalUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context.get('user')
-        cities = validated_data['cities'].split(',')
+        cities = validated_data['cities'][0].split(',')
         print("save  --> create :", validated_data, user.id, cities)
         user.role = 'prof'
+        # pu : professional user
         add_pu = {"user_id": user, **validated_data, "cities": cities}
-        # "startsTime": validated_data['startsTime'],
-        # "endsTime": validated_data['endsTime'],
-        # "address": validated_data['address']}
         print(add_pu)
         prof_user = ProfessionalUser.objects.create(**add_pu)
-        user.save()
+        # user.save()
+        prof_user.save()
         return prof_user
+
+
+class UserDetailsSerializer(serializers.ModelSerializer):
+    """
+    User's all details with nested if he is prof
+    """
+    professionaluser_set = ProfessionalUserSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        # fields = '__all__'
+        fields = ['id', 'email', 'role', 'full_name', 'date_of_birth', 'gender', 'profile_pic_url', 'is_verified',
+                  'is_active', 'mobile_no', 'professionaluser_set']
+
+
+class ProfessionalUserServiceSerializer(serializers.ModelSerializer):
+    """
+    A professional users listing as services provider.
+    """
+
+    class Meta:
+        model = ProfessionalUserService
+        fields = ['id', 'service_id', 'subservice_ids', 'description', 'proof_img_url',
+                  'charges', 'estimate_time', 'payment_modes', 'is_active']
+
+    def create(self, validated_data):
+        subservice_ids = str(validated_data['subservice_ids'][0]).split(',')
+        payment_modes = str(validated_data['payment_modes'][0]).split(',')
+
+        data = {**validated_data, "is_active": True,
+                'subservice_ids': subservice_ids,
+                'payment_modes': payment_modes}
+
+        pu_service = ProfessionalUserService.objects.create(**data)
+        pu_service.save()
+        return pu_service
+
+
+class AllServiceListSerializer(serializers.ModelSerializer):
+    subservice_set = SubserviceListSerializer(many=True, read_only=True)
+    professionaluserservice_set = ProfessionalUserServiceSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Service
+        fields = ['id', 'service_name', 'description', 'img_url', 'is_active', 'subservice_set',
+                  'professionaluserservice_set']
