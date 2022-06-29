@@ -112,10 +112,10 @@ class UserDetailsView(ListAPIView):
     permission_classes = [AllowAny, ]
 
     def get(self, request, uid=None):
-        if not uid:
-            user = request.user
-        else:
+        if uid:
             user = User.objects.get(pk=uid)
+        else:
+            user = request.user
         if user:
             serializer = UserDetailsSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)

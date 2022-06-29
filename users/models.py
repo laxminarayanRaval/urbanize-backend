@@ -111,7 +111,7 @@ class ProfessionalUserService(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self): return f'{self.prof_id} provides service {self.service_id},\
-                                completes task in {self.estimate_time} with charges of {self.charges}'
+    completes task in {self.estimate_time} with charges of {self.charges}'
 
 
 class Reviews(models.Model):

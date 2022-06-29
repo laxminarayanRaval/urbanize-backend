@@ -217,15 +217,39 @@ class UpdateUserContactDetailsSerializer(serializers.Serializer):
         return attrs
 
 
+class ProfessionalUserServiceSerializer(serializers.ModelSerializer):
+    """
+    A professional users listing as services provider.
+    """
+
+    class Meta:
+        model = ProfessionalUserService
+        fields = ['id', 'service_id', 'subservice_ids', 'prof_id', 'description', 'proof_img_url',
+                  'charges', 'estimate_time', 'payment_modes', 'is_active']
+
+    def create(self, validated_data):
+        subservice_ids = str(validated_data['subservice_ids'][0]).split(',')
+        payment_modes = str(validated_data['payment_modes'][0]).split(',')
+
+        data = {**validated_data, "is_active": True,
+                'subservice_ids': subservice_ids,
+                'payment_modes': payment_modes}
+
+        pu_service = ProfessionalUserService.objects.create(**data)
+        pu_service.save()
+        return pu_service
+
+
 class ProfessionalUserSerializer(serializers.ModelSerializer):
     # cities = serializers.CharField(max_length=255, required=True)
     startsTime = serializers.CharField(max_length=255, required=True)
     endsTime = serializers.CharField(max_length=255, required=True)
+    professionaluserservice_set = ProfessionalUserServiceSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProfessionalUser
         # fields = '__all__'
-        fields = ['cities', 'startsTime', 'endsTime', 'address']
+        fields = ['cities', 'startsTime', 'endsTime', 'address', 'professionaluserservice_set']
 
     def validate(self, attrs):
         # cities = attrs.get('cities')
@@ -266,29 +290,6 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         # fields = '__all__'
         fields = ['id', 'email', 'role', 'full_name', 'date_of_birth', 'gender', 'profile_pic_url', 'is_verified',
                   'is_active', 'mobile_no', 'professionaluser_set']
-
-
-class ProfessionalUserServiceSerializer(serializers.ModelSerializer):
-    """
-    A professional users listing as services provider.
-    """
-
-    class Meta:
-        model = ProfessionalUserService
-        fields = ['id', 'service_id', 'subservice_ids', 'description', 'proof_img_url',
-                  'charges', 'estimate_time', 'payment_modes', 'is_active']
-
-    def create(self, validated_data):
-        subservice_ids = str(validated_data['subservice_ids'][0]).split(',')
-        payment_modes = str(validated_data['payment_modes'][0]).split(',')
-
-        data = {**validated_data, "is_active": True,
-                'subservice_ids': subservice_ids,
-                'payment_modes': payment_modes}
-
-        pu_service = ProfessionalUserService.objects.create(**data)
-        pu_service.save()
-        return pu_service
 
 
 class AllServiceListSerializer(serializers.ModelSerializer):
