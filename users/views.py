@@ -145,6 +145,8 @@ class ProfessionalUserView(APIView):
     # serializer_class = ProfessionalUserSerializer
 
     def post(self, request):
+        # print('_'*30, '\n\trequest.user', request.user, '\n\trequest.data', {**request.data})
+
         serializer = ProfessionalUserSerializer(data=request.data, context={'user': request.user})
         if serializer.is_valid():
             serializer.save()

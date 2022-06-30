@@ -241,7 +241,7 @@ class ProfessionalUserServiceSerializer(serializers.ModelSerializer):
 
 
 class ProfessionalUserSerializer(serializers.ModelSerializer):
-    # cities = serializers.CharField(max_length=255, required=True)
+    cities = serializers.CharField(max_length=255, required=True)
     startsTime = serializers.CharField(max_length=255, required=True)
     endsTime = serializers.CharField(max_length=255, required=True)
     professionaluserservice_set = ProfessionalUserServiceSerializer(many=True, read_only=True)
@@ -252,11 +252,13 @@ class ProfessionalUserSerializer(serializers.ModelSerializer):
         fields = ['cities', 'startsTime', 'endsTime', 'address', 'professionaluserservice_set']
 
     def validate(self, attrs):
+
         # cities = attrs.get('cities')
         startsTime = attrs.get('startsTime')
         endsTime = attrs.get('endsTime')
         # address = attrs.get('address')
         user = self.context.get('user')
+        # print('*'*10, '\n\tuser', user, '\n\tattrs data', attrs)
         if user.role == 'prof':
             raise serializers.ValidationError("User is already a Professional")
         if startsTime == endsTime:
@@ -267,15 +269,16 @@ class ProfessionalUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context.get('user')
-        cities = validated_data['cities'][0].split(',')
-        print("save  --> create :", validated_data, user.id, cities)
-        user.role = 'prof'
+        # print('='*30, '\n\tuser', user, '\n\tvalidated data', validated_data)
+        cities = validated_data['cities'].split(',')
+        # print("save  --> create :", validated_data, user.id, cities)
         # pu : professional user
         add_pu = {"user_id": user, **validated_data, "cities": cities}
         print(add_pu)
         prof_user = ProfessionalUser.objects.create(**add_pu)
-        # user.save()
-        prof_user.save()
+        # user.role = 'prof'  # no need to update here
+        # user.save() #  this should be updated at service listing
+        # prof_user.save()
         return prof_user
 
 
