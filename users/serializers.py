@@ -227,18 +227,6 @@ class ProfessionalUserServiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'service_id', 'subservice_ids', 'prof_id', 'description', 'proof_img_url',
                   'charges', 'estimate_time', 'payment_modes', 'is_active']
 
-    def create(self, validated_data):
-        subservice_ids = str(validated_data['subservice_ids'][0]).split(',')
-        payment_modes = str(validated_data['payment_modes'][0]).split(',')
-
-        data = {**validated_data, "is_active": True,
-                'subservice_ids': subservice_ids,
-                'payment_modes': payment_modes}
-
-        pu_service = ProfessionalUserService.objects.create(**data)
-        pu_service.save()
-        return pu_service
-
 
 class ProfessionalUserSerializer(serializers.ModelSerializer):
     cities = serializers.CharField(max_length=255, required=True)
@@ -249,7 +237,7 @@ class ProfessionalUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfessionalUser
         # fields = '__all__'
-        fields = ['cities', 'startsTime', 'endsTime', 'address', 'professionaluserservice_set']
+        fields = ['id', 'cities', 'startsTime', 'endsTime', 'address', 'professionaluserservice_set']
 
     def validate(self, attrs):
 

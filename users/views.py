@@ -186,4 +186,4 @@ class ProfessionalUserServiceView(APIView):
         serializer = ProfessionalUserServiceSerializer(data=request.data, context={'user': request.user})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response({'message': 'Congratulation your service listing is updated'}, status=status.HTTP_202_ACCEPTED)
