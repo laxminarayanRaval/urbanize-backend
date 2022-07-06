@@ -227,6 +227,16 @@ class ProfessionalUserServiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'service_id', 'subservice_ids', 'prof_id', 'description', 'proof_img_url',
                   'charges', 'estimate_time', 'payment_modes', 'is_active']
 
+    def create(self, validated_data):
+        data = {**validated_data, "is_active": True}
+
+        pu_service = ProfessionalUserService.objects.create(**data)
+        user = self.context.get('user')
+        user.role = 'prof'
+        user.save()
+        pu_service.save()
+        return pu_service
+
 
 class ProfessionalUserSerializer(serializers.ModelSerializer):
     cities = serializers.CharField(max_length=255, required=True)
