@@ -239,7 +239,7 @@ class ProfessionalUserServiceSerializer(serializers.ModelSerializer):
 
 
 class ProfessionalUserSerializer(serializers.ModelSerializer):
-    cities = serializers.CharField(max_length=255, required=True)
+    # cities = serializers.CharField(max_length=255, required=True)
     startsTime = serializers.CharField(max_length=255, required=True)
     endsTime = serializers.CharField(max_length=255, required=True)
     professionaluserservice_set = ProfessionalUserServiceSerializer(many=True, read_only=True)
@@ -268,10 +268,10 @@ class ProfessionalUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context.get('user')
         # print('='*30, '\n\tuser', user, '\n\tvalidated data', validated_data)
-        cities = validated_data['cities'].split(',')
+        # cities = validated_data['cities'].split(',')
         # print("save  --> create :", validated_data, user.id, cities)
         # pu : professional user
-        add_pu = {"user_id": user, **validated_data, "cities": cities}
+        add_pu = {"user_id": user, **validated_data}
         print(add_pu)
         prof_user = ProfessionalUser.objects.create(**add_pu)
         # user.role = 'prof'  # no need to update here
