@@ -225,7 +225,7 @@ class ProfessionalUserServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfessionalUserService
         fields = ['id', 'service_id', 'subservice_ids', 'prof_id', 'description', 'proof_img_url',
-                  'charges', 'estimate_time', 'payment_modes', 'is_active']
+                  'charges', 'estimate_time', 'payment_modes', 'is_active', 'reviews_set']
 
     def create(self, validated_data):
         data = {**validated_data, "is_active": True}
@@ -247,7 +247,8 @@ class ProfessionalUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfessionalUser
         # fields = '__all__'
-        fields = ['id', 'cities', 'startsTime', 'endsTime', 'address', 'professionaluserservice_set']
+        fields = ['id', 'cities', 'startsTime', 'endsTime', 'address', 'professionaluserservice_set', 'user_id',
+                  'is_active']
 
     def validate(self, attrs):
 
@@ -284,7 +285,7 @@ class UserDetailsSerializer(serializers.ModelSerializer):
     """
     User's all details with nested if he is prof
     """
-    professionaluser_set = ProfessionalUserSerializer(many=True, read_only=True)
+    # professionaluser_set = ProfessionalUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = User

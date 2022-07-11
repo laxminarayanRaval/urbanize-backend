@@ -156,17 +156,11 @@ class ProfessionalUserView(APIView):
 
     def get(self, request, uid=None):
         if uid:
-            user = User.objects.get(pk=uid)
+            profuser = ProfessionalUser.objects.get(pk=uid)
+            serializer = ProfessionalUserSerializer(profuser)
+            return Response(serializer.data)
         else:
-            user = User.objects.get(email=request.user)
-        if user:
-            # if user.role != 'prof': return Response({'message': 'This user is not a Professional'})
-            if user.role == 'user':
-                return Response({'message': f'This user {user.full_name} ({user.email}) is not a Professional'})
-            else:
-                return Response({'message': f'{user.full_name} ({user.email}) is {user.role}'})
-        else:
-            return Response({'message': 'User Not Found'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'message': 'Please Provide Professional Id'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ProfessionalUserServiceView(APIView):
