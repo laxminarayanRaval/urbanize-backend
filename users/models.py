@@ -46,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField('Full Name', max_length=30, null=False)
     date_of_birth = models.DateTimeField('Date of Birth', null=True)
     gender = models.CharField(max_length=25, choices=(
-        ('None', 'not-specified'), ('male', 'Male'), ('female', 'Female'), ('other', 'Others')), default='None')
+        ('male', 'Male'), ('female', 'Female'), ('other', 'Others')), default='male')
     profile_pic_url = models.URLField(null=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -141,6 +141,49 @@ class ContactUsQuery(models.Model):
     desc = models.CharField(_("Dec. Message"), max_length=255)
     is_active = models.BooleanField(default=True)
     is_solved = models.BooleanField(default=False)
+    created_at = models.DateTimeField('date query made', auto_now=True)
+    updated_at = models.DateTimeField('date update made', auto_now=True)
 
     def __str__(self):
         return f'{self.title} : {self.first_name}'
+
+
+class HireProfessionalRequest(models.Model):
+    id = models.UUIDField(default=uuid.uuid4(), primary_key=True, editable=False)
+    prof_id = models.ForeignKey(ProfessionalUser, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    hire_date = models.DateField()
+    status = models.CharField(max_length=25, default='pending', choices=(
+        ('pending', 'Pending'), ('cancelled', 'Cancelled'), ('accepted', 'Accepted'), ('rejected', 'Rejected'),
+        ('completed', 'Completed')))
+    descriptive_msg = models.TextField()
+    created_at = models.DateTimeField('date query made', auto_now_add=True)
+    updated_at = models.DateTimeField('date update made', auto_now=True)
+
+
+class UserRequirement(models.Model):
+    id = models.UUIDField(default=uuid.uuid4(), primary_key=True, editable=False)
+    subservice_id = models.ForeignKey(SubService, on_delete=models.CASCADE)
+    descriptive_msg = models.TextField()
+    interested_prof = ArrayField(models.CharField(max_length=25), default=list)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField('date query made', auto_now_add=True)
+    updated_at = models.DateTimeField('date update made', auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+
+class FlaggedProfessionalUserReport(models.Model):
+    id = models.UUIDField(default=uuid.uuid4(), primary_key=True, editable=False)
+    prof_id = models.ForeignKey(ProfessionalUser, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField('date query made', auto_now_add=True)
+    updated_at = models.DateTimeField('date update made', auto_now=True)
+
+
+class FavouriteUser(models.Model):
+    id = models.UUIDField(default=uuid.uuid4(), primary_key=True, editable=False)
+    prof_id = models.ForeignKey(ProfessionalUser, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField('date query made', auto_now_add=True)
+    updated_at = models.DateTimeField('date update made', auto_now=True)

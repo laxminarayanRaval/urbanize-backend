@@ -5,8 +5,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticate
 from rest_framework.response import Response
 from .serializers import SignupSerializer, ContactusSerializers, ChangeUserPasswordSerializer, ForgetPasswordSerializer, \
     ResetPasswordSerializer, DeactivateAccountSerializer, UpdateUserContactDetailsSerializer, \
-    ProfessionalUserSerializer, UserDetailsSerializer, ProfessionalUserServiceSerializer
-from .models import User, ContactUsQuery, ProfessionalUser, ProfessionalUserService
+    ProfessionalUserSerializer, UserDetailsSerializer, ProfessionalUserServiceSerializer, \
+    HireProfessionalRequestSerializer
+from .models import User, ContactUsQuery, ProfessionalUser, ProfessionalUserService, HireProfessionalRequest
 
 
 class SignupAPIView(CreateAPIView):
@@ -181,3 +182,20 @@ class ProfessionalUserServiceView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'message': 'Congratulation your service is listed'}, status=status.HTTP_202_ACCEPTED)
+
+
+class HireProfessionalRequestView(APIView):
+    """
+    Hiring Professional by User
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = HireProfessionalRequestSerializer
+
+    # def get(self, request):
+    #     """All Professional Requests send or received"""
+    #     user = request.user
+    #     if user.role == 'prof':
+    #         received = HireProfessionalRequest.objects.get()
+
+    def post(self, request):
+        print(request.user, request.data)

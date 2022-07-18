@@ -8,7 +8,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.password_validation import validate_password
 
 from users.models import Service, SubService
-from .models import User, ProfessionalUser, ContactUsQuery, ProfessionalUserService, Service, SubService
+from .models import User, ProfessionalUser, ContactUsQuery, ProfessionalUserService, Service, SubService, \
+    HireProfessionalRequest
 
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -285,6 +286,7 @@ class UserDetailsSerializer(serializers.ModelSerializer):
     """
     User's all details with nested if he is prof
     """
+
     # professionaluser_set = ProfessionalUserSerializer(many=True, read_only=True)
 
     class Meta:
@@ -302,3 +304,11 @@ class AllServiceListSerializer(serializers.ModelSerializer):
         model = Service
         fields = ['id', 'service_name', 'description', 'img_url', 'is_active', 'subservice_set',
                   'professionaluserservice_set']
+
+
+class HireProfessionalRequestSerializer(serializers.ModelSerializer):
+    prof_id = serializers.CharField(max_length=255, write_only=True)
+
+    class Meta:
+        model = HireProfessionalRequest
+        fields = '__all__'
