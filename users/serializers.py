@@ -252,7 +252,6 @@ class ProfessionalUserSerializer(serializers.ModelSerializer):
                   'is_active']
 
     def validate(self, attrs):
-
         # cities = attrs.get('cities')
         startsTime = attrs.get('startsTime')
         endsTime = attrs.get('endsTime')
@@ -282,12 +281,27 @@ class ProfessionalUserSerializer(serializers.ModelSerializer):
         return prof_user
 
 
+class HireProfessionalRequestSerializer(serializers.ModelSerializer):
+    # prof_id = serializers.CharField(max_length=255, write_only=True)
+
+    class Meta:
+        model = HireProfessionalRequest
+        fields = '__all__'  # ['id', 'pus_id', 'sub_service_id', 'user_id', 'hire_date', 'descriptive_msg', 'status']
+
+    def create(self, validated_data):
+        print("\n validated_data:", validated_data)
+        hpr = HireProfessionalRequest.objects.create(validated_data)
+        print("\n hpr     ::::::: ", hpr)
+        return hpr
+
+
 class UserDetailsSerializer(serializers.ModelSerializer):
     """
     User's all details with nested if he is prof
     """
 
     # professionaluser_set = ProfessionalUserSerializer(many=True, read_only=True)
+    # hireprofessionalrequest_set = HireProfessionalRequestSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
@@ -304,11 +318,3 @@ class AllServiceListSerializer(serializers.ModelSerializer):
         model = Service
         fields = ['id', 'service_name', 'description', 'img_url', 'is_active', 'subservice_set',
                   'professionaluserservice_set']
-
-
-class HireProfessionalRequestSerializer(serializers.ModelSerializer):
-    prof_id = serializers.CharField(max_length=255, write_only=True)
-
-    class Meta:
-        model = HireProfessionalRequest
-        fields = '__all__'

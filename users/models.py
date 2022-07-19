@@ -132,7 +132,7 @@ class ProfessionalUserServiceImages(models.Model):
 
 
 class ContactUsQuery(models.Model):
-    id = models.UUIDField(default=uuid.uuid4(), primary_key=True, editable=False)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(_("Email Address"), max_length=255)
@@ -149,20 +149,21 @@ class ContactUsQuery(models.Model):
 
 
 class HireProfessionalRequest(models.Model):
-    id = models.UUIDField(default=uuid.uuid4(), primary_key=True, editable=False)
-    prof_id = models.ForeignKey(ProfessionalUser, on_delete=models.CASCADE)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
+    prof_id = models.ForeignKey(ProfessionalUserService, on_delete=models.CASCADE)
+    subservice_id = models.ForeignKey(SubService, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    hire_date = models.DateField()
-    status = models.CharField(max_length=25, default='pending', choices=(
+    hire_date = models.DateField(null=True, blank=True)
+    descriptive_msg = models.TextField(null=True)
+    status = models.CharField(max_length=25, choices=(
         ('pending', 'Pending'), ('cancelled', 'Cancelled'), ('accepted', 'Accepted'), ('rejected', 'Rejected'),
-        ('completed', 'Completed')))
-    descriptive_msg = models.TextField()
+        ('completed', 'Completed')), default='pending')
     created_at = models.DateTimeField('date query made', auto_now_add=True)
     updated_at = models.DateTimeField('date update made', auto_now=True)
 
 
 class UserRequirement(models.Model):
-    id = models.UUIDField(default=uuid.uuid4(), primary_key=True, editable=False)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     subservice_id = models.ForeignKey(SubService, on_delete=models.CASCADE)
     descriptive_msg = models.TextField()
     interested_prof = ArrayField(models.CharField(max_length=25), default=list)
@@ -173,7 +174,7 @@ class UserRequirement(models.Model):
 
 
 class FlaggedProfessionalUserReport(models.Model):
-    id = models.UUIDField(default=uuid.uuid4(), primary_key=True, editable=False)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     prof_id = models.ForeignKey(ProfessionalUser, on_delete=models.CASCADE)
     message = models.TextField()
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -182,7 +183,7 @@ class FlaggedProfessionalUserReport(models.Model):
 
 
 class FavouriteUser(models.Model):
-    id = models.UUIDField(default=uuid.uuid4(), primary_key=True, editable=False)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     prof_id = models.ForeignKey(ProfessionalUser, on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField('date query made', auto_now_add=True)

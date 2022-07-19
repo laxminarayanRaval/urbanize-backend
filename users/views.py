@@ -189,7 +189,8 @@ class HireProfessionalRequestView(APIView):
     Hiring Professional by User
     """
     permission_classes = [IsAuthenticated]
-    serializer_class = HireProfessionalRequestSerializer
+
+    # serializer_class = HireProfessionalRequestSerializer
 
     # def get(self, request):
     #     """All Professional Requests send or received"""
@@ -198,4 +199,13 @@ class HireProfessionalRequestView(APIView):
     #         received = HireProfessionalRequest.objects.get()
 
     def post(self, request):
-        print(request.user, request.data)
+        data = {**request.data, "user_id": request.user.id}
+        print("Post data:", data)
+        serializer = HireProfessionalRequestSerializer(data=data)
+        if serializer.is_valid():
+            print("Serializer After valid:", serializer)
+            serializer.save()
+            print("Data After Saving:", serializer.data)
+            return Response({'message': f'Hiring request is Sent to the Professional {request.user.full_name}'},
+                            status=status.HTTP_202_ACCEPTED)
+        return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
