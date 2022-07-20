@@ -148,20 +148,6 @@ class ContactUsQuery(models.Model):
         return f'{self.title} : {self.first_name}'
 
 
-class HireProfessionalRequest(models.Model):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
-    prof_id = models.ForeignKey(ProfessionalUserService, on_delete=models.CASCADE)
-    subservice_id = models.ForeignKey(SubService, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    hire_date = models.DateField(null=True, blank=True)
-    descriptive_msg = models.TextField(null=True)
-    status = models.CharField(max_length=25, choices=(
-        ('pending', 'Pending'), ('cancelled', 'Cancelled'), ('accepted', 'Accepted'), ('rejected', 'Rejected'),
-        ('completed', 'Completed')), default='pending')
-    created_at = models.DateTimeField('date query made', auto_now_add=True)
-    updated_at = models.DateTimeField('date update made', auto_now=True)
-
-
 class UserRequirement(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     subservice_id = models.ForeignKey(SubService, on_delete=models.CASCADE)
@@ -171,6 +157,23 @@ class UserRequirement(models.Model):
     created_at = models.DateTimeField('date query made', auto_now_add=True)
     updated_at = models.DateTimeField('date update made', auto_now=True)
     is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'UserRequirement : {self.created_by} on {self.created_at}'
+
+# class HireProfessionalRequest(models.Model):
+#     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
+#     prof_id = models.ForeignKey(ProfessionalUserService, on_delete=models.CASCADE)
+#     # subservice_id = models.ForeignKey(SubService, on_delete=models.CASCADE)
+#     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+#     hire_date = models.DateField(null=True, blank=True)
+#     descriptive_msg = models.TextField(null=True)
+#     status = models.CharField(max_length=25, choices=(
+#         ('pending', 'Pending'), ('cancelled', 'Cancelled'), ('accepted', 'Accepted'), ('rejected', 'Rejected'),
+#         ('completed', 'Completed')), default='pending')
+#     created_at = models.DateTimeField('date query made', auto_now_add=True)
+#     updated_at = models.DateTimeField('date update made', auto_now=True)
+#
 
 
 class FlaggedProfessionalUserReport(models.Model):

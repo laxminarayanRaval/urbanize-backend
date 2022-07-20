@@ -1,13 +1,17 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser, BasePermission
 from rest_framework.response import Response
 from .serializers import SignupSerializer, ContactusSerializers, ChangeUserPasswordSerializer, ForgetPasswordSerializer, \
     ResetPasswordSerializer, DeactivateAccountSerializer, UpdateUserContactDetailsSerializer, \
     ProfessionalUserSerializer, UserDetailsSerializer, ProfessionalUserServiceSerializer, \
-    HireProfessionalRequestSerializer
-from .models import User, ContactUsQuery, ProfessionalUser, ProfessionalUserService, HireProfessionalRequest
+    UserRequirementSerializer, FlaggedProfessionalUserReportSerializer, FavouriteUserSerializer
+# HireProfessionalRequestSerializer
+from .models import User, ContactUsQuery, ProfessionalUser, ProfessionalUserService, FlaggedProfessionalUserReport, \
+    UserRequirement, FavouriteUser
+# HireProfessionalRequest
 
 
 class SignupAPIView(CreateAPIView):
@@ -184,11 +188,11 @@ class ProfessionalUserServiceView(APIView):
         return Response({'message': 'Congratulation your service is listed'}, status=status.HTTP_202_ACCEPTED)
 
 
-class HireProfessionalRequestView(APIView):
-    """
-    Hiring Professional by User
-    """
-    permission_classes = [IsAuthenticated]
+# class HireProfessionalRequestView(APIView):
+#     """
+#     Hiring Professional by User
+#     """
+#     permission_classes = [IsAuthenticated]
 
     # serializer_class = HireProfessionalRequestSerializer
 
@@ -198,14 +202,32 @@ class HireProfessionalRequestView(APIView):
     #     if user.role == 'prof':
     #         received = HireProfessionalRequest.objects.get()
 
-    def post(self, request):
-        data = {**request.data, "user_id": request.user.id}
-        print("Post data:", data)
-        serializer = HireProfessionalRequestSerializer(data=data)
-        if serializer.is_valid():
-            print("Serializer After valid:", serializer)
-            serializer.save()
-            print("Data After Saving:", serializer.data)
-            return Response({'message': f'Hiring request is Sent to the Professional {request.user.full_name}'},
-                            status=status.HTTP_202_ACCEPTED)
-        return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    # def post(self, request):
+    #     data = {**request.data, "user_id": request.user.id}
+    #     print("Post data:", data)
+        # serializer = HireProfessionalRequestSerializer(data=data)
+        # if serializer.is_valid():
+        #     print("Serializer After valid:", serializer)
+        #     serializer.save()
+        #     print("Data After Saving:", serializer.data)
+        #     return Response({'message': f'Hiring request is Sent to the Professional {request.user.full_name}'},
+        #                     status=status.HTTP_202_ACCEPTED)
+        # return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserRequirementViewSet(ModelViewSet):
+    serializer_class = UserRequirementSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = UserRequirement.objects.all()
+
+
+class FlaggedProfessionalUserReportViewSet(ModelViewSet):
+    serializer_class = FlaggedProfessionalUserReportSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = FlaggedProfessionalUserReport.objects.all()
+
+
+class FavouriteUserViewSet(ModelViewSet):
+    serializer_class = FavouriteUserSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = FavouriteUser.objects.all()

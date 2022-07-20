@@ -1,12 +1,18 @@
-from django.urls import path, re_path
+from django.urls import path, include
 from .views import MyTokenObtainPairView, TestView, ListServiceView, ListSubserviceView, AllServicesListView
-
+from rest_framework.routers import DefaultRouter
 from users.views import SignupAPIView, ContactusView, ChangeUserPasswordView, ForgetPasswordView, ResetPasswordView, \
     DeactivateAccountView, UserDetailsView, ContactDetailsView, ProfessionalUserView, ProfessionalUserServiceView, \
-    HireProfessionalRequestView
+    UserRequirementViewSet, FlaggedProfessionalUserReportViewSet, FavouriteUserViewSet  # HireProfessionalRequestView
 from rest_framework_simplejwt.views import (TokenRefreshView)
 
+router = DefaultRouter()
+router.register('user/requirement', UserRequirementViewSet)
+router.register('flag/professional', FlaggedProfessionalUserReportViewSet)
+router.register('fav/professional', FavouriteUserViewSet)
+
 urlpatterns = [
+    path('', include(router.urls)),
     path('contact_us/', ContactusView.as_view(), name='contact_us'),
     path('contact_us/<pk>/', ContactusView.as_view(), name='contact_us_id'),
 
@@ -26,11 +32,16 @@ urlpatterns = [
     path('user/professional/<uid>/', ProfessionalUserView.as_view(), name="professional_user_via_id"),
     path('professional/services_list/', ProfessionalUserServiceView.as_view(), name="professional_user_listings"),
 
-    path('hire/professional/', HireProfessionalRequestView.as_view(), name="user_professional_hiring"),
+    # path('flag/professional/', FlaggedProfessionalUserReportView.as_view({'get': 'list'}),
+    #      name="flag_professional_user"),
+
+    # path('hire/professional/', HireProfessionalRequestView.as_view(), name="user_professional_hiring"),
 
     path('test/', TestView.as_view(), name='just_for_auth_testing'),
 
     path('services/all', ListServiceView.as_view(), name='all_services'),
     path('services/sub_services/all', ListSubserviceView.as_view(), name='all_sub_services'),
-    path('services/list_all/', AllServicesListView.as_view(), name='services_with_nested')
+    path('services/list_all/', AllServicesListView.as_view(), name='services_with_nested'),
 ]
+
+# urlpatterns += router.urls
